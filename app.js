@@ -7,11 +7,6 @@ const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-// const NotFoundError = require('./errors/not-found-err');
-// const UnauthorizedError = require('./errors/unauthorized-err');
-const BadRequestError = require('./errors/bad-request-err');
-const ConflictError = require('./errors/conflict-err');
-
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -71,13 +66,25 @@ app.use('*', () => {
 app.use(errors());
 
 app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
+  let { statusCode = 500, message } = err;
   if (err.name === 'ValidationError') {
-    throw new BadRequestError('Запрос неверно сформирован');
+    statusCode = 400;
+    message = 'Запрос неверно сформирован';
   }
 
   if (err.code === 11000) {
-    throw new ConflictError('Данные уже существуют');
+    statusCode = 409;
+    message = 'Данные уже существуют';
+  }
+
+  if (err.name === 'CastError') {
+    statusCode = 400;
+    message = 'Карточка не найдена';
+  }
+
+  if (err.name === 'Error') {
+    statusCode = 401;
+    message = err.message;
   }
 
   res

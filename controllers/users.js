@@ -3,8 +3,6 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
-const ConflictError = require('../errors/conflict-err');
-const UnauthorizedError = require('../errors/unauthorized-err');
 
 module.exports.getUsers = (req, res) => {
   User
@@ -47,13 +45,7 @@ module.exports.createUser = (req, res, next) => {
       name, about, avatar, email,
     }))
     .catch((err) => {
-      if (err.name === 'MongoError' && err.code === 11000) {
-        throw new ConflictError('Пользователь с таким E-mail уже существует.');
-      } else if (err.name === 'ValidationError') {
-        throw new BadRequestError(err.message);
-      } else {
-        return next(err);
-      }
+      next(err);
     });
 };
 
@@ -62,11 +54,7 @@ module.exports.updateProfile = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new BadRequestError(err.message);
-      } else {
-        return next(err);
-      }
+      next(err);
     });
 };
 
@@ -75,15 +63,11 @@ module.exports.updateAvatar = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new BadRequestError(err.message);
-      } else {
-        return next(err);
-      }
+      next(err);
     });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   if (!password) {
     throw new BadRequestError('Введите пароль');
@@ -103,6 +87,6 @@ module.exports.login = (req, res) => {
         .end();
     })
     .catch((err) => {
-      throw new UnauthorizedError(err.message);
+      next(err);
     });
 };

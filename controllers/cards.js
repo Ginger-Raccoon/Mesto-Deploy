@@ -1,5 +1,4 @@
 const Card = require('../models/card');
-const BadRequestError = require('../errors/bad-request-err');
 const NotFoundError = require('../errors/not-found-err');
 
 module.exports.getCards = (req, res, next) => {
@@ -15,11 +14,7 @@ module.exports.createCard = (req, res, next) => {
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new BadRequestError(err.message);
-      } else {
-        return next(err);
-      }
+      next(err);
     });
 };
 
@@ -34,11 +29,7 @@ module.exports.deleteCard = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new BadRequestError('Карточка не найдена');
-      } else {
-        return next(err);
-      }
+      next(err);
     });
 };
 
@@ -54,11 +45,7 @@ module.exports.likeCard = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new BadRequestError('Карточка не найдена');
-      } else {
-        return next(err);
-      }
+      next(err);
     });
 };
 
@@ -74,10 +61,6 @@ module.exports.dislikeCard = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new BadRequestError('Карточка не найдена');
-      } else {
-        return next(err);
-      }
+      next(err);
     });
 };
