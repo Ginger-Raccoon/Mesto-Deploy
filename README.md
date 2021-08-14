@@ -1,3 +1,7 @@
+# Внимание!!!
+Представленные ниже данные были актуальны на момент сдачи работы на проверку, все подробности можно узнать у [@gingerraccoon](https://t.me/gingerraccoon)
+
+
 ### Backend
 api.gingermesto.ml
 www.api.gingermesto.ml
